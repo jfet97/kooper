@@ -1,6 +1,6 @@
 function analize(message) {
 
-    var arrayText;
+    var arrayText = [];
 
     var colors = {
         "rosso" : "red",
@@ -10,24 +10,28 @@ function analize(message) {
         "arancio" : "orange",
         "arancione" : "orange",
         "viola" : "violet",
-        "marrone" : "brown"
+        "marrone" : "brown",
+        "bianco" : "white",
+        "nero" : "black"
     }
+
+    console.log("hai chiamato analize");
 
     function elaborateMessage() {
         var lowerCaseMessage = message.toLowerCase();
-        console.log(lowerCaseMessage);
+        console.log("il testo è: " + lowerCaseMessage);
         arrayText = lowerCaseMessage.split(" ");
-        // console.log(arrayText);
+        //console.log(arrayText);
         
     }
 
-    function findWord(word) {
-        return arrayText.indexOf(word);
+    function findWord(array, word) {
+        return array.indexOf(word);
     }
 
     
     function changeColor() {
-        var pos = findWord("colore");
+        var pos = findWord(arrayText, "colore");
         if(pos !== -1) {
             var color = arrayText[pos+1];
             // console.log(color);
@@ -35,15 +39,52 @@ function analize(message) {
                 if(typeof colors[color] !== "undefined") {  
                     var body = document.getElementsByTagName('body')[0];
                     body.style.backgroundColor = colors[color];
+                    var utterance = new SpeechSynthesisUtterance("Colore background modificato, colore scelto:    " + colors[color]);
+                    window.speechSynthesis.speak(utterance);
                 }
+            }
+        }
+        return "hai chiamato colore";
+    }
+
+    function height() {
+        var utterance = new SpeechSynthesisUtterance("Hai chiamato la funzione altezza!");
+        window.speechSynthesis.speak(utterance);
+        return "hai chiamato altezza";
+    }
+
+    function length() {
+        var utterance = new SpeechSynthesisUtterance("Hai chiamato la funzione larghezza!");
+        window.speechSynthesis.speak(utterance);
+    }
+
+
+    var keyWords = {
+        colore : changeColor,
+        altezza : height,
+        larghezza : length
+    }
+
+
+    
+    function findKeyWords() {  
+        
+         var keyWordsArray = Object.keys(keyWords);
+        console.log("l'array è " + keyWordsArray);
+
+        for(let i = 0; i < keyWordsArray.length; i++) {
+            if(findWord(arrayText, keyWordsArray[i]) !== -1) {
+                console.log("ho trovato " + keyWordsArray[i]);
+                console.log(keyWords[keyWordsArray[i]]());
             }
         }
     }
 
+
     var analizeAPI  = {
         elaborateMessage: elaborateMessage,
         findWord: findWord,
-        changeColor: changeColor
+        findKeyWords: findKeyWords
     }
     
     return analizeAPI;
@@ -66,9 +107,10 @@ function recordAudio()
 
     recognition.onresult = function(event) {
         message = event.results[0][0].transcript;
+        console.log("on result");
         var text = analize(message);
         text.elaborateMessage();
-        text.changeColor();
+        text.findKeyWords();
     };
     
     recognition.onspeechend = function() {
