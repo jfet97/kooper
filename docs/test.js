@@ -15,14 +15,19 @@ function analize(message) {
         "nero": "black"
     }
 
-    console.log("hai chiamato analize");
+    var keyWords = {
+        comandi: commands,
+        colore: changeColor,
+        altezza: height,
+        larghezza: length,
+        spesa: shopping
+    }
+
 
     function elaborateMessage() {
         var lowerCaseMessage = message.toLowerCase();
-        console.log("il testo è: " + lowerCaseMessage);
+        console.log("il parlato contiene: " + lowerCaseMessage);
         arrayText = lowerCaseMessage.split(" ");
-        //console.log(arrayText);
-
     }
 
     function findWord(array, word) {
@@ -30,15 +35,36 @@ function analize(message) {
     }
 
 
+    function checkValue(pos, offset) {
+        var value = arrayText[pos + offset];
+        if(value !== undefined) return value;
+        return undefined;
+    }
+
+    function findKeyWords() {
+        var keyWordsArray = Object.keys(keyWords);
+        console.log("l'array è " + keyWordsArray);
+        for (let i = 0; i < keyWordsArray.length; i++) {
+            var pos = findWord(arrayText, keyWordsArray[i]);
+            if (pos !== -1) {
+                console.log("ho trovato " + keyWordsArray[i]);
+                console.log(keyWords[keyWordsArray[i]](pos));
+            }
+        }
+    }
+
+
+
+
+
+
     function changeColor(pos) {
-        console.log(pos);
-        var color = arrayText[pos + 1];
-        // console.log(color);
-        if (color !== "undefined") {
+        var color = checkValue(pos, 1);
+        if (color !== undefined) {
             if (typeof colors[color] !== "undefined") {
                 var body = document.getElementsByTagName('body')[0];
                 body.style.backgroundColor = colors[color];
-                var utterance = new SpeechSynthesisUtterance("Colore background modificato, colore scelto:    " + colors[color]);
+                var utterance = new SpeechSynthesisUtterance("Colore background modificato, colore scelto:    " + color);
                 window.speechSynthesis.speak(utterance);
             }
         }
@@ -46,9 +72,8 @@ function analize(message) {
     }
 
     function height(pos) {
-        var height = arrayText[pos + 2];
-        // console.log(color);
-        if (height !== "undefined") {
+        var height = checkValue(pos, 2);
+        if ( (height !== "undefined") && (!isNaN(height)) ) {
             var button = document.getElementById("start");
             var heightString = height + "px";
             button.style.height = heightString;
@@ -59,28 +84,18 @@ function analize(message) {
     }
 
     function length(pos) {
-        var length = arrayText[pos + 2];
-        // console.log(color);
-        if (length !== "undefined") {
+        var width = checkValue(pos, 2);
+        if ( (width !== "undefined") && (!isNaN( width)) ) {
             var button = document.getElementById("start");
-            var lengthString = length + "px";
-            button.style.length = lengthString;
-            var utterance = new SpeechSynthesisUtterance("Hai modificato la larghezza del bottone di " + length + "pixels.");
+            var widthString = width + "px";
+            button.style.width = widthString;
+            var utterance = new SpeechSynthesisUtterance("Hai modificato la larghezza del bottone di " + width + "pixels.");
             window.speechSynthesis.speak(utterance);
         }
         return "hai chiamato larghezza";
     }
 
-
-    var keyWords = {
-        comandi: comandi,
-        colore: changeColor,
-        altezza: height,
-        larghezza: length
-    }
-
-
-    function comandi() {
+    function commands() {
         var utterance = new SpeechSynthesisUtterance("I comandi disponibili sono: ");
         window.speechSynthesis.speak(utterance);
         var keyWordsArray = Object.keys(keyWords);
@@ -88,24 +103,18 @@ function analize(message) {
             let _utterance = new SpeechSynthesisUtterance(`${keyWordsArray[i]}`);
             window.speechSynthesis.speak(_utterance);
         }
+        return "hai chiamato comandi";
+    }
 
+    function shopping() {
+        var utterance = new SpeechSynthesisUtterance("Vacci tu a farti la spesa, brutto idiota!");
+        window.speechSynthesis.speak(utterance);
+        return "hai chiamato spesa";
     }
 
 
 
-    function findKeyWords() {
-
-        var keyWordsArray = Object.keys(keyWords);
-        console.log("l'array è " + keyWordsArray);
-
-        for (let i = 0; i < keyWordsArray.length; i++) {
-            var pos = findWord(arrayText, keyWordsArray[i]);
-            if (pos !== -1) {
-                console.log("ho trovato " + keyWordsArray[i]);
-                console.log(keyWords[keyWordsArray[i]](pos));
-            }
-        }
-    }
+    
 
 
     var analizeAPI = {
